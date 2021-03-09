@@ -13,15 +13,17 @@ import axios from "axios";
 
 const App = () => {
   const [wordList, setWordList] = useState([
-    { word: "implication", meaning: "意味あい、暗示するもの" },
+    { word: "sample", meaning: "サンプル" },
   ]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("default");
   const [target, setTarget] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
+      // async/awaitに書き換える
       axios
         .post(
+          // 環境ファイルに切り出す
           "https://en94fvkrmd.execute-api.ap-northeast-1.amazonaws.com/default/translate",
           {
             text: target,
@@ -47,15 +49,23 @@ const App = () => {
 
   return (
     <div>
-      <Typography variant="h6">Avatar with text and icon</Typography>
+      <Typography variant="h6">単語リスト</Typography>
       <List>
-        {wordList.map((word) => {
+        {wordList.map((word, index) => {
           return (
-            <ListItem>
+            <ListItem key={index}>
               <TextField defaultValue={word.word} />
               <ListItemText primary={word.meaning} />
               <ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete">
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() =>
+                    setWordList(
+                      wordList.filter((_, targetIndex) => index !== targetIndex)
+                    )
+                  }
+                >
                   <Delete />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -64,10 +74,16 @@ const App = () => {
         })}
       </List>
       <div>
-        <TextField onChange={(event) => setInput(event.target.value)} />
+        <TextField
+          value={input}
+          onChange={(event) => {
+            setInput(event.target.value);
+          }}
+        />
         <IconButton
           onClick={() => {
             setTarget(input);
+            setInput("");
           }}
         >
           <AddCircleOutline />
