@@ -19,32 +19,28 @@ const App = () => {
   const [target, setTarget] = useState("");
 
   useEffect(() => {
-    const fetchData = () => {
-      // async/awaitに書き換える
-      axios
-        .post(
-          // 環境ファイルに切り出す
-          "https://en94fvkrmd.execute-api.ap-northeast-1.amazonaws.com/default/translate",
+    if (target !== "") {
+      const fetchData = async () => {
+        const res = await axios.post(
+          `${process.env.REACT_APP_AWS_API}/default/translate`,
           {
             text: target,
             sourceLanguage: "en",
             targetLanguage: "ja",
           },
           {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
           }
-        )
-        .then((response) =>
-          setWordList([
-            ...wordList,
-            { word: target, meaning: response.data.message },
-          ])
-        )
-        .catch((error) => {
-          console.info(error);
-        });
-    };
-    fetchData();
+        );
+        setWordList((wordList) => [
+          ...wordList,
+          { word: target, meaning: res.data.message },
+        ]);
+      };
+      fetchData();
+    }
   }, [target]);
 
   return (
