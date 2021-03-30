@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  TextField,
-  CircularProgress,
-} from "@material-ui/core";
-import { Delete, AddCircleOutline } from "@material-ui/icons";
+import { Typography } from "@material-ui/core";
 import axios from "axios";
 import Dexie, { Table } from "dexie";
 import { useLiveQuery } from "dexie-react-hooks";
+import WordListComponent from "./components/WordList";
+import InputWord from "./components/InputWord";
 
 interface WordList {
   id: number;
@@ -76,44 +68,21 @@ const App = () => {
     <div>
       <Typography variant="h6">単語リスト</Typography>
       <button onClick={() => db.wordList.clear()}>Clear</button>
-      <List>
-        {wordList?.map((row, index) => {
-          return (
-            <ListItem key={row.id}>
-              <TextField defaultValue={row.word} />
-              <ListItemText primary={row.meaning} />
-              <ListItemSecondaryAction>
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => {
-                    db.wordList.delete(row.word);
-                  }}
-                >
-                  <Delete />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          );
-        })}
-      </List>
-      <div>
-        <TextField
-          value={input}
-          onChange={(event) => {
-            setInput(event.target.value);
-          }}
-        />
-        <IconButton
-          onClick={() => {
-            setTarget(input);
-            setInput("");
-          }}
-        >
-          <AddCircleOutline />
-        </IconButton>
-        {loading && <CircularProgress size={24} />}
-      </div>
+      <WordListComponent
+        wordList={wordList}
+        handleClick={(target: string) => {
+          db.wordList.delete(target);
+        }}
+      />
+      <InputWord
+        input={input}
+        loading={loading}
+        handleChange={(event: any) => setInput(event.target.value)}
+        handleClick={() => {
+          setTarget(input);
+          setInput("");
+        }}
+      />
     </div>
   );
 };
